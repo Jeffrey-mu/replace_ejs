@@ -1,57 +1,64 @@
 <script setup lang="ts">
-const user = useUserStore()
-const name = $ref(user.savedName)
-
-const router = useRouter()
-const go = () => {
-  if (name)
-    router.push(`/hi/${encodeURIComponent(name)}`)
+import 'vue3-json-viewer/dist/index.css'
+export interface RegExpMatchArrayItem {
+  [key: number]: string
+  index?: number
+  input?: string
 }
+type forEachFN = (item: RegExpMatchArrayItem, index: number) => void
 
-const { t } = useI18n()
+const REG_PRE_FIX = [/href=.\.?/g, /src=.\.?/g]
+const input = ref<string>('')
+
+function isSymbol(RegExpMatchArrayItemValue: string): string {
+  const LAST_CHAR = RegExpMatchArrayItemValue.slice(-1)
+  let result = `${RegExpMatchArrayItemValue}../`
+  if (LAST_CHAR === '.')
+    result = `${RegExpMatchArrayItemValue}.`
+
+  return result
+}
+let preIndex = 0
+
+const output = computed(() => {
+  preIndex = 0
+  if (!input.value)
+    return ''
+  let outputString = ''
+  const MATCH_RETURN_LIST_FALT = ((REG_PRE_FIX.map(item => [...new Set(input.value.matchAll(item))]).flatMap(item => item)).sort((a: any, b: any) => {
+    return a.index - b.index
+  }))
+
+  // @ts-expect-error
+  forEach(selfJoinString)
+  function forEach(fn: forEachFN) {
+    MATCH_RETURN_LIST_FALT.forEach(fn)
+  }
+  function selfJoinString(item: RegExpMatchArrayItem, index: number) {
+    const { input = '', index: RegExpMatchArrayItemIndex = 0 } = item
+    outputString += input.slice(preIndex, RegExpMatchArrayItemIndex) + isSymbol(item[0])
+    preIndex = RegExpMatchArrayItemIndex + item[0].length
+    if (index === MATCH_RETURN_LIST_FALT.length - 1)
+      outputString += input.slice(preIndex)
+  }
+  return outputString
+})
 </script>
 
 <template>
-  <div>
-    <div text-4xl>
-      <div i-carbon-campsite inline-block />
+  <div flex h80vh>
+    <div flex="1">
+      <textarea
+        v-model="input"
+        class="textarea"
+        border="1 rd"
+        cols="30"
+        rows="10"
+        placeholder="input"
+      />
     </div>
-    <p>
-      <a rel="noreferrer" href="https://github.com/antfu/vitesse" target="_blank">
-        Vitesse
-      </a>
-    </p>
-    <p>
-      <em text-sm opacity-75>{{ t('intro.desc') }}</em>
-    </p>
-
-    <div py-4 />
-
-    <input
-      id="input"
-      v-model="name"
-      :placeholder="t('intro.whats-your-name')"
-      :aria-label="t('intro.whats-your-name')"
-      type="text"
-      autocomplete="false"
-      p="x4 y2"
-      w="250px"
-      text="center"
-      bg="transparent"
-      border="~ rounded gray-200 dark:gray-700"
-      outline="none active:none"
-      @keydown.enter="go"
-    >
-    <label class="hidden" for="input">{{ t('intro.whats-your-name') }}</label>
-
-    <div>
-      <button
-        btn m-3 text-sm
-        :disabled="!name"
-        @click="go"
-      >
-        {{ t('button.go') }}
-      </button>
+    <div flex="1">
+      <textarea id="" v-model="output" class="textarea" border cols="30" rows="10" placeholder="output" disabled />
     </div>
   </div>
 </template>
@@ -60,3 +67,28 @@ const { t } = useI18n()
 meta:
   layout: home
 </route>
+
+<style>
+.textarea {
+  position: relative;
+  outline: none;
+  padding: 10px !important;
+  width: 80%;
+  height: 100%;
+  background: none;
+}
+ .dark .jv-container.jv-light,
+ .dark .jv-array,
+ .dark .jv-object,
+ .dark .jv-key {
+   background: #111 !important;
+   color: aliceblue !important;
+ }
+ .dark .jv-ellipsis {
+   background: #111 !important;
+   color: aliceblue !important;
+ }
+ .jv-tooltip .right {
+  position:absolute;
+ }
+</style>
