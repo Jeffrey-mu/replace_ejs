@@ -10,6 +10,8 @@ declare module '@vue/runtime-core' {
     ButtonType: typeof import('./components/buttonType.vue')['default']
     Counter: typeof import('./components/Counter.vue')['default']
     Footer: typeof import('./components/Footer.vue')['default']
+    JeInput: typeof import('./components/JeInput.vue')['default']
+    JfInput: typeof import('./components/JfInput.vue')['default']
     README: typeof import('./components/README.md')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
